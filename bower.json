@@ -1,0 +1,19 @@
+{
+  "name": "angular-kencale",
+  "version": "0.0.1",
+  "description": "i18n and l10n for Angular with conditional scripts and CSS",
+  "author": "Elad Efrat",
+  "license": "MIT",
+  "homepage": "http://github.com/elad/angular-kencale",
+  "main": "./angular-kencale.js",
+  "dependencies": {
+    "angular": "1.4.3",
+    "angular-translate": "2.7.2",
+    "angular-sanitize": "1.4.3",
+    "angular-load": "0.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/elad/angular-kencale.git"
+  }
+}
