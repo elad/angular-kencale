@@ -65,10 +65,14 @@ angular.module('myApp', [
   // If your translations are in other files, you can pass a URL
   // instead of actual translations. Both a single URL as a string
   // or multiple URLs as an array are fine.
-  $localeProvider.loadLocale('en-us', {
-  	translations: 'en-us.json'
-  });
-  
+  $localeProvider.
+    loadLocale('en-us', {
+  	  translations: 'en-us.json'
+    }).
+    loadLocale('he-il', {
+  	  translations: 'he-il.json'
+    });
+
   // If your URLs have a pattern, you could use a template. Just
   // pass a string (or an array, for multiple templates) instead.
   $localeProvider.loadLocale([
