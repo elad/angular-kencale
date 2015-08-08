@@ -1,6 +1,6 @@
 {
   "name": "angular-kencale",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "i18n and l10n for Angular with conditional scripts and CSS",
   "author": "Elad Efrat",
   "license": "MIT",
