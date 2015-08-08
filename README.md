@@ -4,7 +4,7 @@
 
 For now, read this:
 
-```js
+```
 // This example uses angular-moment to demonstrate use of a
 // locale-specific plugin. It's not a dependency of angular-kencale.
 
@@ -61,6 +61,20 @@ angular.module('myApp', [
         world: 'עולם'
       }
     });
+    
+  // If your translations are in other files, you can pass a URL
+  // instead of actual translations. Both a single URL as a string
+  // or multiple URLs as an array are fine.
+  $localeProvider.loadLocale('en-us', {
+  	translations: 'en-us.json'
+  });
+  
+  // If your URLs have a pattern, you could use a template. Just
+  // pass a string (or an array, for multiple templates) instead.
+  $localeProvider.loadLocale([
+    'foo.{localeId}.json',
+    'bar.{localeId}.json'
+  ]);
 })
 .run(function ($locale, amMoment) {
   // The $locale service is available in the run phase.  You can set a
