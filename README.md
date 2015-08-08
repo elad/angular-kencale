@@ -4,7 +4,7 @@
 
 For now, read this:
 
-```
+```js
 // This example uses angular-moment to demonstrate use of a
 // locale-specific plugin. It's not a dependency of angular-kencale.
 
