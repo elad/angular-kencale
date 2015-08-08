@@ -8,15 +8,32 @@ angular.module('angularKencale', [
   'angularLoad'
 ])
 .provider('$locale', function ($translateProvider) {
-  $translateProvider.useSanitizeValueStrategy('escape');
-
   var defaultLocaleId;
   var currentLocaleId;
   var availableLocales = {};
   var setLocaleCallback;
   var loadedScripts = []; // Note: Will be obsolete by angular-load > 0.2.0
+  var loaderUrls = {};
+  var loaderTemplateUrls = [];
+
+  $translateProvider.useSanitizeValueStrategy('escape');
+
+  // Set up a custom (async) loader and force its use. This lets us have
+  // both inlined translations (standard objects) but also external URLs.
+  $translateProvider.forceAsyncReload(true);
+  $translateProvider.useLoader('kencaleLoader', {
+    urls: loaderUrls,
+    templateUrls: loaderTemplateUrls
+  });
 
   function loadLocale(localeId, localeData) {
+    // If we have only one argument, it's a template URL with translations.
+    if (localeId && !localeData) {
+      var urls = angular.isString(localeId) ? [localeId] : localeId;
+      loaderTemplateUrls.push.apply(loaderTemplateUrls, urls);
+      return this;
+    }
+
     var locale = availableLocales[localeId];
     if (!locale) {
       locale = availableLocales[localeId] = {
@@ -46,7 +63,19 @@ angular.module('angularKencale', [
       });
     }
 
-    $translateProvider.translations(localeId, localeData.translations);
+    // If 'translations' is a string (or an array), then it's a list
+    // of URLs with translations to be loaded. Otherwise, it's a
+    // standard translations object and we pass it directly.
+    var translations = angular.isString(localeData.translations) ? [localeData.translations] : localeData.translations;
+    if (angular.isArray(localeData.translations)) {
+      var localeUrls = loaderUrls[localeId];
+      if (!localeUrls) {
+        localeUrls = loaderUrls[localeId] = [];
+      }
+      localeUrls.push.apply(localeUrls, translations);
+    } else {
+      $translateProvider.translations(localeId, translations);
+    }
 
     return this;
   }
@@ -193,5 +222,67 @@ angular.module('angularKencale', [
       setLocaleCallback = callback;
     }
   }
+}).
+// Simplified copy of https://github.com/angular-translate/bower-angular-translate-loader-static-files
+factory('kencaleLoader', function ($q, $http) {
+  return function (options) {
+    if (!options || !options.urls || !angular.isObject(options.urls)) {
+      throw new Error('No URLs specified for loading');
+    }
+
+    var load = function (url) {
+      if (!url) {
+        throw new Error('No URL specified for loading');
+      }
+
+      var deferred = $q.defer();
+
+      $http(angular.extend({
+        url: url,
+        method: 'GET',
+        params: ''
+      }, options.$http)).success(function (data) {
+        deferred.resolve(data);
+      }).error(function () {
+        deferred.reject(options.key);
+      });
+
+      return deferred.promise;
+    };
+
+    var deferred = $q.defer(),
+        promises = [],
+        urls = options.urls[options.key] || [];
+
+    // Append any template URLs.
+    if (options.templateUrls) {
+      for (var i = 0, _len = options.templateUrls.length; i < _len; i++) {
+        urls.push(options.templateUrls[i].replace('{localeId}', options.key));
+      }
+    }
+
+    var length = urls.length;
+
+    for (var i = 0; i < length; i++) {
+      promises.push(load(urls[i]));
+    }
+
+    $q.all(promises).then(function (data) {
+      var length = data.length,
+          mergedData = {};
+
+      for (var i = 0; i < length; i++) {
+        for (var key in data[i]) {
+          mergedData[key] = data[i][key];
+        }
+      }
+
+      deferred.resolve(mergedData);
+    }, function (data) {
+      deferred.reject(data);
+    });
+
+    return deferred.promise;
+  };
 });
 })();
