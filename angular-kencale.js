@@ -12,7 +12,6 @@ angular.module('angularKencale', [
   var currentLocaleId;
   var availableLocales = {};
   var setLocaleCallback;
-  var loadedScripts = []; // Note: Will be obsolete by angular-load > 0.2.0
   var loaderUrls = {};
   var loaderTemplateUrls = [];
 
@@ -98,21 +97,6 @@ angular.module('angularKencale', [
   
   // Factory for the locale service, available during run phase.
   function getInstance($rootScope, $translate, angularLoad, $q) {
-    function loadScript(script) {
-      var d = $q.defer();
-
-      angularLoad.loadScript(script).then(function () {
-        loadedScripts.push(script);
-        
-        d.resolve();
-      }).catch(function() {
-        console.error('Failed to load locale script, localeId: %s, script: %s', localeId, script);
-        d.resolve();
-      });
-
-      return d.promise;
-    }
-
     function findCSS(callback) {
       var cssElements = document.getElementsByTagName('link');
       for (var i = 0, _len = cssElements.length; i < _len; i++) {
@@ -129,16 +113,7 @@ angular.module('angularKencale', [
 
       // Scripts
       $q.all(localeInfo.scripts.
-        filter(function (script) {
-          return (loadedScripts.indexOf(script) === -1);
-        }).
         map(angularLoad.loadScript)).
-      then(function (results) {
-        results.forEach(function (e) {
-          var script = e.path[0].attributes.src.value;
-          loadedScripts.push(script);
-        });
-      }).
       finally(function (results) {
         setLocaleCallback && setLocaleCallback(localeId);
       });

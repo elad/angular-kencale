@@ -10,7 +10,7 @@
     "angular": "1.4.3",
     "angular-translate": "2.7.2",
     "angular-sanitize": "1.4.3",
-    "angular-load": "0.2.0"
+    "angular-load": "0.3.0"
   },
   "repository": {
     "type": "git",
