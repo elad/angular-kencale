@@ -66,7 +66,7 @@ angular.module('angularKencale', [
     // of URLs with translations to be loaded. Otherwise, it's a
     // standard translations object and we pass it directly.
     var translations = angular.isString(localeData.translations) ? [localeData.translations] : localeData.translations;
-    if (angular.isArray(localeData.translations)) {
+    if (angular.isArray(translations)) {
       var localeUrls = loaderUrls[localeId];
       if (!localeUrls) {
         localeUrls = loaderUrls[localeId] = [];
