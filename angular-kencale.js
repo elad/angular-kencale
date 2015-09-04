@@ -160,11 +160,9 @@ angular.module('angularKencale', [
       isRTL: isRTL
     };
 
-    return serviceAPI;
-
     // Public API
     function isRTL(localeId) {
-      localeId = localeId || $rootScope.localeId;
+      localeId = localeId || currentLocaleId;
       return !!availableLocales[localeId].rtl;
     };
 
@@ -188,6 +186,7 @@ angular.module('angularKencale', [
       if (serviceAPI) {
         serviceAPI.id = localeId;
       }
+      onSetLocale && onSetLocale(localeId);
       $rootScope.isRTL = isRTL(localeId);
 
       return this;
@@ -196,6 +195,8 @@ angular.module('angularKencale', [
     function onSetLocale(callback) {
       setLocaleCallback = callback;
     }
+
+    return serviceAPI;
   }
 }).
 // Simplified copy of https://github.com/angular-translate/bower-angular-translate-loader-static-files
@@ -231,16 +232,14 @@ factory('kencaleLoader', function ($q, $http) {
 
     // Append any template URLs.
     if (options.templateUrls) {
-      for (var i = 0, _len = options.templateUrls.length; i < _len; i++) {
-        urls.push(options.templateUrls[i].replace('{localeId}', options.key));
-      }
+      urls = urls.concat(options.templateUrls);
     }
 
     var length = urls.length;
 
-    for (var i = 0; i < length; i++) {
-      promises.push(load(urls[i]));
-    }
+    urls.forEach(function (url) {
+      promises.push(load(url.replace('{localeId}', options.key)));
+    });
 
     $q.all(promises).then(function (data) {
       var length = data.length,
